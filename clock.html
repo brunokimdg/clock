@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Untitled Document</title>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+var clockId = 'placeOfClock';
+function resizeWindow(){
+  var nHeight = $(window).height()/2-100;
+   $('#'+clockId).css('margin-top',nHeight);
+}
+$(document).ready(function(){ resizeWindow(); buildClock(); });
+$(window).resize(function() { resizeWindow(); });
+function buildClock(){
+  for(var i=0;i<=90;i++){
+          if(i%2==0){
+    $('#'+clockId).append('<div id="secPointer'+i+'" class="secPointer">&nbsp;</div>');
+    if(i<60){ $('#'+clockId).append('<div id="minPointer'+i+'" class="minPointer">&nbsp;<div>'); }
+    if(i<40){ $('#'+clockId).append('<div id="hourPointer'+i+'" class="hourPointer">&nbsp;</div>'); }
+    }
+  }
+  var degForHour; var htmlForHour;
+  for(var a=0;a<=12;a++){
+    degForHour = a * 30;
+    htmlForHour = '<div id="hourNum'+a+'" class="digit">';
+    if(a==0){ htmlForHour += '12'; }else{ htmlForHour += ''+a; }
+    htmlForHour += '</div>';
+    $('#'+clockId).append(htmlForHour);
+    rotateElement('hourNum'+a,degForHour,80,1);
+  }
+  for(var t=0;t<=360;t++){    
+    $('#'+clockId).append('<div id="mark'+t+'" class="mark">&nbsp;</div>');
+    rotateElement('mark'+t,t,97,0);
+  }
+  setTimeout('clockWorks(1);',1000);
+}
+var previousMin;
+var previousHour;
+function clockWorks(isFirst){
+  var date = new Date();
+  var hours = date.getHours();
+  if(hours > 12){ hours = hours - 12; }
+  var minutes = date.getMinutes();
+  var seconds = date.getSeconds();
+  if(isFirst == 1){ previousMin = minutes; previousHour = hours; }
+  hourDegree = hours * 30; minDegree = minutes * 6; secDegree = seconds * 6;
+  for(var i=0;i<=90;i++){
+    if(i%2==0){ rotateElement('secPointer'+i,secDegree,i,0); }
+  }
+  if(isFirst == 1 || minutes != previousMin){
+    for(var k=0;k<=60;k++){ rotateElement('minPointer'+k,minDegree,k,0); }
+  }
+  if(isFirst == 1 || hours!=previousHour){
+    for(var y=0;y<=40;y++){ rotateElement('hourPointer'+y,hourDegree,y,0); }
+  }
+  setTimeout('clockWorks(0);',1000);
+}
+function rotateElement(id,degree,distFromCntr,isDigit){
+  var radAngle   = degree * Math.PI/180;
+  var vertDist   = 100-Math.cos(radAngle) * distFromCntr;
+  var horDist   = 100+Math.sin(radAngle) * distFromCntr;
+  if(isDigit){ vertDist -= 8; horDist -= 5;}
+  $('#'+id).css({ 'margin-left' : horDist , 'margin-top' : vertDist});
+}
+//]]>
+</script>
+<style type="text/css">
+#placeOfClock{
+  width:200px;
+  height:200px;
+  background-color:#000;
+  margin: auto;
+  position:relative;
+}
+.mark{ background-color:#CCC; z-index:1; position:absolute; width:1px; height:1px; }
+.digit{ color:#FFF; z-index:2; position:absolute; }
+.hourPointer{ width:3px; height:3px; position:absolute; background-color:#FF0; z-index:11; }
+.minPointer{ width:2px; height:2px; position:absolute; background-color:#FFF; z-index:10; }
+.secPointer{ width:1px; height:1px; position:absolute; background-color:#0F0; z-index:12; }
+</style>
+</head>
+<body>
+<div id="placeOfClock"></div>
+</body>
+</html>
